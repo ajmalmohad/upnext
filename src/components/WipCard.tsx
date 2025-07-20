@@ -13,6 +13,8 @@ interface WipCardProps {
   onUpdatePriority: (priority: number) => void;
   onUpdateTitle: (title: string) => void;
   onDelete: () => void;
+  onUpdateTimelineEntry: (entryId: number, text: string) => void;
+  onDeleteTimelineEntry: (entryId: number) => void;
   onUpdate: () => void;
 }
 
@@ -24,10 +26,14 @@ export function WipCard({
   onUpdatePriority, 
   onUpdateTitle,
   onDelete,
+  onUpdateTimelineEntry,
+  onDeleteTimelineEntry,
   onUpdate 
 }: WipCardProps) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editTitle, setEditTitle] = useState(wip.title);
+  const [editingTimelineId, setEditingTimelineId] = useState<number | null>(null);
+  const [editingTimelineText, setEditingTimelineText] = useState('');
 
   const handleTitleSave = () => {
     if (editTitle.trim() && editTitle.trim() !== wip.title) {
@@ -41,6 +47,24 @@ export function WipCard({
   const handleTitleCancel = () => {
     setEditTitle(wip.title);
     setIsEditingTitle(false);
+  };
+
+  const handleTimelineEdit = (entryId: number, currentText: string) => {
+    setEditingTimelineId(entryId);
+    setEditingTimelineText(currentText);
+  };
+
+  const handleTimelineSave = () => {
+    if (editingTimelineId && editingTimelineText.trim()) {
+      onUpdateTimelineEntry(editingTimelineId, editingTimelineText.trim());
+    }
+    setEditingTimelineId(null);
+    setEditingTimelineText('');
+  };
+
+  const handleTimelineCancel = () => {
+    setEditingTimelineId(null);
+    setEditingTimelineText('');
   };
   const getStatusIcon = (status: Wip['status']) => {
     switch (status) {
@@ -215,7 +239,7 @@ export function WipCard({
                       {wip.timeline.map((update, index) => (
                         <div 
                           key={update.id} 
-                          className="flex space-x-4"
+                          className="flex space-x-4 group/timeline"
                         >
                           <div className="flex-shrink-0 flex flex-col items-center">
                             <div className="w-3 h-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full shadow-md" />
@@ -224,7 +248,70 @@ export function WipCard({
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm text-slate-900 dark:text-slate-100 mb-2 font-medium leading-relaxed">{update.text}</p>
+                            {editingTimelineId === update.id ? (
+                              <div className="space-y-2">
+                                <textarea
+                                  value={editingTimelineText}
+                                  onChange={(e) => setEditingTimelineText(e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                      e.preventDefault();
+                                      handleTimelineSave();
+                                    }
+                                    if (e.key === 'Escape') {
+                                      handleTimelineCancel();
+                                    }
+                                  }}
+                                  className="w-full text-sm text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                                  rows={2}
+                                  autoFocus
+                                />
+                                <div className="flex items-center space-x-2">
+                                  <button
+                                    onClick={handleTimelineSave}
+                                    className="px-3 py-1 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                                  >
+                                    Save
+                                  </button>
+                                  <button
+                                    onClick={handleTimelineCancel}
+                                    className="px-3 py-1 text-xs bg-slate-300 dark:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-md hover:bg-slate-400 dark:hover:bg-slate-500 transition-colors"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="relative">
+                                <p className="text-sm text-slate-900 dark:text-slate-100 mb-2 font-medium leading-relaxed pr-16">
+                                  {update.text}
+                                </p>
+                                <div className="absolute top-0 right-0 opacity-0 group-hover/timeline:opacity-100 transition-opacity flex items-center space-x-1">
+                                  <motion.button
+                                    onClick={() => handleTimelineEdit(update.id, update.text)}
+                                    className="p-1 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-md transition-colors"
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    title="Edit update"
+                                  >
+                                    <Edit2 className="w-3 h-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300" />
+                                  </motion.button>
+                                  <motion.button
+                                    onClick={() => {
+                                      if (confirm('Delete this update?')) {
+                                        onDeleteTimelineEntry(update.id);
+                                      }
+                                    }}
+                                    className="p-1 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-md transition-colors"
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    title="Delete update"
+                                  >
+                                    <Trash2 className="w-3 h-3 text-red-400 hover:text-red-600 dark:hover:text-red-300" />
+                                  </motion.button>
+                                </div>
+                              </div>
+                            )}
                             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{formatTimeAgo(update.timestamp)}</p>
                           </div>
                         </div>

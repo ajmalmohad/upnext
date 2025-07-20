@@ -167,6 +167,35 @@ export function useWipTracker() {
     ));
   };
 
+  const deleteTimelineEntry = (wipId: number, entryId: number) => {
+    setWips(prev => prev.map(wip => 
+      wip.id === wipId 
+        ? { 
+            ...wip, 
+            timeline: wip.timeline.filter(entry => entry.id !== entryId),
+            lastUpdated: new Date() 
+          }
+        : wip
+    ));
+  };
+
+  const updateTimelineEntry = (wipId: number, entryId: number, text: string) => {
+    if (!text.trim()) return;
+    setWips(prev => prev.map(wip => 
+      wip.id === wipId 
+        ? { 
+            ...wip, 
+            timeline: wip.timeline.map(entry => 
+              entry.id === entryId 
+                ? { ...entry, text: text.trim() }
+                : entry
+            ),
+            lastUpdated: new Date() 
+          }
+        : wip
+    ));
+  };
+
   const addTimelineEntry = (wipId: number, text: string) => {
     if (!text.trim()) return;
 
@@ -222,6 +251,8 @@ export function useWipTracker() {
     updateWipTitle,
     deleteWip,
     addTimelineEntry,
+    deleteTimelineEntry,
+    updateTimelineEntry,
     toggleWipExpanded,
     clearAllData,
     parseCommand
