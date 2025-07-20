@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Plus, Sparkles, Command } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Modal } from './ui/Modal';
 
 interface CommandBarProps {

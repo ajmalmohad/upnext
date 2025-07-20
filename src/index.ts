@@ -3,7 +3,7 @@ export { useWipTracker } from './hooks/useWipTracker';
 export type { Wip, WipTimelineEntry, ParsedCommand } from './hooks/useWipTracker';
 
 // Utility functions
-export { formatTimeAgo, getStatusColor, getWeightColor } from './utils/formatters';
+export { formatTimeAgo, getStatusColor } from './utils/formatters';
 
 // UI Components
 export { Modal } from './components/ui/Modal';
