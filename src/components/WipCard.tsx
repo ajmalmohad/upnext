@@ -1,5 +1,5 @@
 import { Play, Pause, Check, Clock, Calendar, Hash, MessageCircle, Sparkles, ChevronUp, ChevronDown, RotateCcw } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { CollapsibleSection } from './ui/CollapsibleSection';
 import { formatTimeAgo, getStatusColor, getPriorityColor } from '../utils/formatters';
 import type { Wip } from '../hooks/useWipTracker';
@@ -73,27 +73,37 @@ export function WipCard({
                 </motion.div>
                 
                 <motion.div 
-                  className={`flex items-center space-x-1 px-3 py-1.5 text-xs font-semibold rounded-full backdrop-blur-sm border shadow-sm ${getPriorityColor(wip.priority)} group/priority relative`}
-                  whileHover={{ scale: 1.08, y: -1 }}
+                  className={`relative inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-full backdrop-blur-sm border shadow-sm ${getPriorityColor(wip.priority)} group/priority`}
+                  whileHover={{ scale: 1.05, y: -1 }}
                   transition={{ duration: 0.15 }}
                 >
                   <span>P{wip.priority}</span>
-                  <div className="flex flex-col opacity-0 group-hover/priority:opacity-100 transition-opacity ml-1">
+                  
+                  {/* Hover controls - positioned absolutely */}
+                  <div className="absolute -top-1 -right-1 opacity-0 group-hover/priority:opacity-100 transition-opacity duration-200 flex flex-col bg-white dark:bg-slate-800 rounded-md shadow-lg border border-slate-200 dark:border-slate-700">
                     <motion.button
-                      onClick={() => onUpdatePriority(Math.max(0, wip.priority - 1))}
-                      className="w-3 h-3 flex items-center justify-center hover:bg-black/10 dark:hover:bg-white/10 rounded-sm"
-                      whileHover={{ scale: 1.2 }}
-                      whileTap={{ scale: 0.8 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onUpdatePriority(Math.max(0, wip.priority - 1));
+                      }}
+                      className="w-5 h-4 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-700 rounded-t-md text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      title="Increase Priority"
                     >
-                      <ChevronUp className="w-2 h-2" />
+                      <ChevronUp className="w-3 h-3" />
                     </motion.button>
                     <motion.button
-                      onClick={() => onUpdatePriority(Math.min(10, wip.priority + 1))}
-                      className="w-3 h-3 flex items-center justify-center hover:bg-black/10 dark:hover:bg-white/10 rounded-sm"
-                      whileHover={{ scale: 1.2 }}
-                      whileTap={{ scale: 0.8 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onUpdatePriority(Math.min(10, wip.priority + 1));
+                      }}
+                      className="w-5 h-4 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-700 rounded-b-md text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      title="Decrease Priority"
                     >
-                      <ChevronDown className="w-2 h-2" />
+                      <ChevronDown className="w-3 h-3" />
                     </motion.button>
                   </div>
                 </motion.div>

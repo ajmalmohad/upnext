@@ -28,7 +28,7 @@ export function CommandBar({ isOpen, onClose, onSubmit }: CommandBarProps) {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Add New WIP"
+      title="Add New Task"
       description="Use #tags, ~2h for estimates, p0 for priority (0=urgent, 1=high, 2=medium, 3=low)"
     >
       <motion.div 
@@ -48,8 +48,9 @@ export function CommandBar({ isOpen, onClose, onSubmit }: CommandBarProps) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Add new WIP... (try: 'Fix login bug #frontend ~2h p0')"
-          className="flex-1 text-lg placeholder-slate-400 dark:placeholder-slate-500 outline-none bg-transparent dark:text-slate-100 font-medium"
+          placeholder="Add new task... (try: 'fix login bug #frontend ~2h p0')"
+          className="flex-1 outline-none focus:outline-none text-lg placeholder-slate-400 dark:placeholder-slate-500 bg-transparent dark:text-slate-100 font-medium border-none focus:ring-0 focus:border-none focus:shadow-none"
+          style={{ boxShadow: 'none', outline: 'none', border: 'none' }}
           autoFocus
         />
       </motion.div>

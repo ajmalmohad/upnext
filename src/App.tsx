@@ -143,7 +143,7 @@ export default function WIPTracker() {
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.3, duration: 0.5 }}
                 >
-                  WIP Tracker
+                  upnext
                 </motion.h1>
                 <motion.p 
                   className="text-slate-600 dark:text-slate-400 mt-1 flex items-center space-x-4"
