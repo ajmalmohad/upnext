@@ -149,6 +149,24 @@ export function useWipTracker() {
     localStorage.removeItem(STORAGE_KEY);
   };
 
+  const deleteWip = (id: number) => {
+    setWips(prev => prev.filter(wip => wip.id !== id));
+    setExpandedWips(prev => {
+      const newExpanded = { ...prev };
+      delete newExpanded[id];
+      return newExpanded;
+    });
+  };
+
+  const updateWipTitle = (id: number, title: string) => {
+    if (!title.trim()) return;
+    setWips(prev => prev.map(wip => 
+      wip.id === id 
+        ? { ...wip, title: title.trim(), lastUpdated: new Date() }
+        : wip
+    ));
+  };
+
   const addTimelineEntry = (wipId: number, text: string) => {
     if (!text.trim()) return;
 
@@ -201,6 +219,8 @@ export function useWipTracker() {
     addWip,
     updateWipStatus,
     updateWipPriority,
+    updateWipTitle,
+    deleteWip,
     addTimelineEntry,
     toggleWipExpanded,
     clearAllData,

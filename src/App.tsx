@@ -20,6 +20,8 @@ export default function WIPTracker() {
     addWip,
     updateWipStatus,
     updateWipPriority,
+    updateWipTitle,
+    deleteWip,
     addTimelineEntry,
     toggleWipExpanded,
     clearAllData
@@ -292,6 +294,8 @@ export default function WIPTracker() {
                           onToggleExpanded={() => toggleWipExpanded(wip.id)}
                           onUpdateStatus={(status) => updateWipStatus(wip.id, status)}
                           onUpdatePriority={(priority) => updateWipPriority(wip.id, priority)}
+                          onUpdateTitle={(title) => updateWipTitle(wip.id, title)}
+                          onDelete={() => deleteWip(wip.id)}
                           onUpdate={() => handleUpdateWip(wip)}
                         />
                       </motion.div>

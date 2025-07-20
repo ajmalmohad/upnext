@@ -1,5 +1,6 @@
-import { Play, Pause, Check, Clock, Calendar, Hash, MessageCircle, Sparkles, ChevronUp, ChevronDown, RotateCcw } from 'lucide-react';
+import { Play, Pause, Check, Clock, Calendar, Hash, MessageCircle, Sparkles, ChevronUp, ChevronDown, RotateCcw, Trash2, Edit2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useState } from 'react';
 import { CollapsibleSection } from './ui/CollapsibleSection';
 import { formatTimeAgo, getStatusColor, getPriorityColor } from '../utils/formatters';
 import type { Wip } from '../hooks/useWipTracker';
@@ -10,6 +11,8 @@ interface WipCardProps {
   onToggleExpanded: () => void;
   onUpdateStatus: (status: Wip['status']) => void;
   onUpdatePriority: (priority: number) => void;
+  onUpdateTitle: (title: string) => void;
+  onDelete: () => void;
   onUpdate: () => void;
 }
 
@@ -19,8 +22,26 @@ export function WipCard({
   onToggleExpanded, 
   onUpdateStatus,
   onUpdatePriority, 
+  onUpdateTitle,
+  onDelete,
   onUpdate 
 }: WipCardProps) {
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editTitle, setEditTitle] = useState(wip.title);
+
+  const handleTitleSave = () => {
+    if (editTitle.trim() && editTitle.trim() !== wip.title) {
+      onUpdateTitle(editTitle.trim());
+    } else {
+      setEditTitle(wip.title);
+    }
+    setIsEditingTitle(false);
+  };
+
+  const handleTitleCancel = () => {
+    setEditTitle(wip.title);
+    setIsEditingTitle(false);
+  };
   const getStatusIcon = (status: Wip['status']) => {
     switch (status) {
       case 'Active':
@@ -58,9 +79,39 @@ export function WipCard({
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1, duration: 0.3 }}
             >
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center space-x-2">
-                <span>{wip.title}</span>
-              </h3>
+              <div className="flex-1 flex items-center space-x-2 group/title">
+                {isEditingTitle ? (
+                  <div className="flex-1 flex items-center space-x-2">
+                    <input
+                      type="text"
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleTitleSave();
+                        if (e.key === 'Escape') handleTitleCancel();
+                      }}
+                      onBlur={handleTitleSave}
+                      className="flex-1 text-lg font-semibold text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      autoFocus
+                    />
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-2 flex-1">
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex-1">
+                      {wip.title}
+                    </h3>
+                    <motion.button
+                      onClick={() => setIsEditingTitle(true)}
+                      className="opacity-0 group-hover/title:opacity-100 p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-all duration-200"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      title="Edit title"
+                    >
+                      <Edit2 className="w-3 h-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300" />
+                    </motion.button>
+                  </div>
+                )}
+              </div>
               
               <div className="flex items-center space-x-2">
                 <motion.div 
@@ -244,6 +295,21 @@ export function WipCard({
                 </motion.button>
               </>
             )}
+            
+            {/* Delete button - always available */}
+            <motion.button 
+              onClick={() => {
+                if (confirm(`Delete "${wip.title}"? This cannot be undone.`)) {
+                  onDelete();
+                }
+              }}
+              className="p-2.5 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-all duration-200 backdrop-blur-sm border border-red-200/50 dark:border-red-700/30 opacity-0 group-hover:opacity-100"
+              title="Delete WIP"
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <Trash2 className="w-4 h-4" />
+            </motion.button>
           </motion.div>
         </div>
         
