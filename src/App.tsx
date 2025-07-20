@@ -11,6 +11,7 @@ import type { Wip } from './hooks/useWipTracker';
 
 export default function WIPTracker() {
   const {
+    wips,
     expandedWips,
     incompleteWips,
     completedWips,
@@ -18,6 +19,7 @@ export default function WIPTracker() {
     staleWips,
     addWip,
     updateWipStatus,
+    updateWipPriority,
     addTimelineEntry,
     toggleWipExpanded
   } = useWipTracker();
@@ -70,38 +72,13 @@ export default function WIPTracker() {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-      className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 font-system font-sans"
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/30 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 font-system font-sans antialiased"
     >
-      {/* Floating Background Elements */}
+      {/* Optimized Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          animate={{
-            y: [0, -20, 0],
-            x: [0, 10, 0],
-            rotate: [0, 5, 0]
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "linear"
-          }}
-          className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-blue-200/30 to-purple-200/30 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            y: [0, 30, 0],
-            x: [0, -15, 0],
-            rotate: [0, -3, 0]
-          }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            ease: "linear",
-            delay: 2
-          }}
-          className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-purple-200/20 to-pink-200/20 rounded-full blur-3xl"
-        />
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-gradient-to-br from-blue-200/20 to-purple-200/20 rounded-full blur-3xl opacity-60" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-purple-200/15 to-pink-200/15 rounded-full blur-3xl opacity-50" />
       </div>
 
       <CommandBar
@@ -140,16 +117,7 @@ export default function WIPTracker() {
         </AnimatePresence>
 
         {/* Main Content */}
-        <motion.div 
-          className="flex-1 relative"
-          animate={{ 
-            marginLeft: showSidebar ? 0 : -320 
-          }}
-          transition={{ 
-            duration: 0.5, 
-            ease: [0.16, 1, 0.3, 1] 
-          }}
-        >
+        <div className={`flex-1 transition-all duration-500 ease-out ${showSidebar ? 'ml-0' : 'ml-0'}`}>
           {/* Glassmorphism Header */}
           <motion.div 
             style={{ 
@@ -286,7 +254,7 @@ export default function WIPTracker() {
               >
                 <AnimatePresence mode="popLayout">
                   {currentWips
-                    .sort((a, b) => b.weight - a.weight)
+                    .sort((a, b) => a.priority - b.priority) // P0 first, then P1, P2, etc.
                     .map((wip, index) => (
                       <motion.div
                         key={wip.id}
@@ -319,6 +287,7 @@ export default function WIPTracker() {
                           isExpanded={expandedWips[wip.id] || false}
                           onToggleExpanded={() => toggleWipExpanded(wip.id)}
                           onUpdateStatus={(status) => updateWipStatus(wip.id, status)}
+                          onUpdatePriority={(priority) => updateWipPriority(wip.id, priority)}
                           onUpdate={() => handleUpdateWip(wip)}
                         />
                       </motion.div>
@@ -390,7 +359,7 @@ export default function WIPTracker() {
               </motion.div>
             </Tabs.Content>
           </Tabs.Root>
-        </motion.div>
+        </div>
       </div>
     </motion.div>
   );

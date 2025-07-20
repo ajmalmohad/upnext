@@ -17,11 +17,11 @@
 }
 
 .animate-slideDown {
-  animation: slideDown 0.2s ease-out;
+  animation: slideDown 0.15s ease-out;
 }
 
 .animate-slideUp {
-  animation: slideUp 0.2s ease-out;
+  animation: slideUp 0.15s ease-out;
 }
 
 /* Radix Dialog animations */

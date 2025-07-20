@@ -13,7 +13,7 @@ export function Sidebar({ isVisible, onToggleVisibility, activeWips, staleWips }
   if (!isVisible) return null;
 
   const highPriorityWips = activeWips
-    .filter(wip => wip.weight >= 7)
+    .filter(wip => wip.priority <= 1) // P0 and P1 only
     .slice(0, 3);
 
   return (
@@ -77,7 +77,7 @@ export function Sidebar({ isVisible, onToggleVisibility, activeWips, staleWips }
                         className="px-2 py-1 bg-gradient-to-r from-blue-100 to-blue-200 dark:from-blue-900/50 dark:to-blue-800/50 text-blue-700 dark:text-blue-300 rounded-md font-semibold border border-blue-200/50 dark:border-blue-700/30"
                         whileHover={{ scale: 1.1 }}
                       >
-                        W{wip.weight}
+                        P{wip.priority}
                       </motion.span>
                       <div className="flex items-center space-x-1">
                         <Clock className="w-3 h-3" />

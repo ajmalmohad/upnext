@@ -1,7 +1,7 @@
-import { Play, Pause, Check, Clock, Calendar, Hash, MessageCircle, Sparkles } from 'lucide-react';
+import { Play, Pause, Check, Clock, Calendar, Hash, MessageCircle, Sparkles, ChevronUp, ChevronDown, RotateCcw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CollapsibleSection } from './ui/CollapsibleSection';
-import { formatTimeAgo, getStatusColor, getWeightColor } from '../utils/formatters';
+import { formatTimeAgo, getStatusColor, getPriorityColor } from '../utils/formatters';
 import type { Wip } from '../hooks/useWipTracker';
 
 interface WipCardProps {
@@ -9,6 +9,7 @@ interface WipCardProps {
   isExpanded: boolean;
   onToggleExpanded: () => void;
   onUpdateStatus: (status: Wip['status']) => void;
+  onUpdatePriority: (priority: number) => void;
   onUpdate: () => void;
 }
 
@@ -16,7 +17,8 @@ export function WipCard({
   wip, 
   isExpanded, 
   onToggleExpanded, 
-  onUpdateStatus, 
+  onUpdateStatus,
+  onUpdatePriority, 
   onUpdate 
 }: WipCardProps) {
   const getStatusIcon = (status: Wip['status']) => {
@@ -34,18 +36,18 @@ export function WipCard({
 
   return (
     <motion.div 
-      className="group relative bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-slate-200/50 dark:border-slate-700/50 overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300"
+      className="group relative bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-2xl border border-slate-200/60 dark:border-slate-700/60 overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300"
       whileHover={{ 
         y: -4, 
-        scale: 1.02,
-        boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.15)"
+        scale: 1.015,
+        boxShadow: "0 32px 64px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1)"
       }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
     >
-      {/* Gradient border effect */}
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/5 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      {/* Enhanced gradient border effect */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/5 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       
       <div className="relative p-6">
         <div className="flex items-start justify-between">
@@ -70,13 +72,31 @@ export function WipCard({
                   <span>{wip.status}</span>
                 </motion.div>
                 
-                <motion.span 
-                  className={`px-3 py-1.5 text-xs font-medium rounded-full backdrop-blur-sm ${getWeightColor(wip.weight)}`}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                <motion.div 
+                  className={`flex items-center space-x-1 px-3 py-1.5 text-xs font-semibold rounded-full backdrop-blur-sm border shadow-sm ${getPriorityColor(wip.priority)} group/priority relative`}
+                  whileHover={{ scale: 1.08, y: -1 }}
+                  transition={{ duration: 0.15 }}
                 >
-                  W{wip.weight}
-                </motion.span>
+                  <span>P{wip.priority}</span>
+                  <div className="flex flex-col opacity-0 group-hover/priority:opacity-100 transition-opacity ml-1">
+                    <motion.button
+                      onClick={() => onUpdatePriority(Math.max(0, wip.priority - 1))}
+                      className="w-3 h-3 flex items-center justify-center hover:bg-black/10 dark:hover:bg-white/10 rounded-sm"
+                      whileHover={{ scale: 1.2 }}
+                      whileTap={{ scale: 0.8 }}
+                    >
+                      <ChevronUp className="w-2 h-2" />
+                    </motion.button>
+                    <motion.button
+                      onClick={() => onUpdatePriority(Math.min(10, wip.priority + 1))}
+                      className="w-3 h-3 flex items-center justify-center hover:bg-black/10 dark:hover:bg-white/10 rounded-sm"
+                      whileHover={{ scale: 1.2 }}
+                      whileTap={{ scale: 0.8 }}
+                    >
+                      <ChevronDown className="w-2 h-2" />
+                    </motion.button>
+                  </div>
+                </motion.div>
               </div>
             </motion.div>
             
@@ -170,7 +190,17 @@ export function WipCard({
               Update
             </motion.button>
             
-            {wip.status !== 'Done' && (
+            {wip.status === 'Done' ? (
+              <motion.button 
+                onClick={() => onUpdateStatus('Active')}
+                className="p-2.5 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/30 rounded-xl transition-all duration-200 backdrop-blur-sm border border-blue-200/50 dark:border-blue-700/30"
+                title="Move back to Active"
+                whileHover={{ scale: 1.1, rotate: -10 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <RotateCcw className="w-4 h-4" />
+              </motion.button>
+            ) : (
               <>
                 {wip.status === 'Active' ? (
                   <motion.button 

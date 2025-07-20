@@ -23,9 +23,10 @@ export const getStatusColor = (status: Wip['status']): string => {
   }
 };
 
-export const getWeightColor = (weight: number): string => {
-  if (weight >= 8) return 'bg-red-100 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-300 dark:border-red-800';
-  if (weight >= 6) return 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-950 dark:text-orange-300 dark:border-orange-800';
-  if (weight >= 4) return 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800';
-  return 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700';
+export const getPriorityColor = (priority: number): string => {
+  if (priority === 0) return 'bg-red-100/80 text-red-800 border-red-200/60 dark:bg-red-950/50 dark:text-red-300 dark:border-red-800/40';
+  if (priority === 1) return 'bg-orange-100/80 text-orange-800 border-orange-200/60 dark:bg-orange-950/50 dark:text-orange-300 dark:border-orange-800/40';
+  if (priority === 2) return 'bg-blue-100/80 text-blue-800 border-blue-200/60 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800/40';
+  if (priority === 3) return 'bg-slate-100/80 text-slate-700 border-slate-200/60 dark:bg-slate-800/50 dark:text-slate-300 dark:border-slate-700/40';
+  return 'bg-slate-100/80 text-slate-600 border-slate-200/60 dark:bg-slate-800/50 dark:text-slate-400 dark:border-slate-700/40';
 };

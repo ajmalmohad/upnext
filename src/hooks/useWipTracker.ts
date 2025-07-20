@@ -12,7 +12,7 @@ export interface Wip {
   status: 'Active' | 'Paused' | 'Done';
   timeStarted: string;
   estimate?: string;
-  weight: number;
+  priority: number; // 0 = highest priority (P0), 10 = lowest priority (P10)
   tags: string[];
   lastUpdated: Date;
   timeline: WipTimelineEntry[];
@@ -22,7 +22,7 @@ export interface ParsedCommand {
   title: string;
   tags: string[];
   estimate: string | null;
-  weight: number;
+  priority: number;
 }
 
 const initialWips: Wip[] = [
@@ -32,7 +32,7 @@ const initialWips: Wip[] = [
     status: "Active",
     timeStarted: "2 hours ago",
     estimate: "2h",
-    weight: 8,
+    priority: 0, // P0 - highest priority
     tags: ["backend", "urgent"],
     lastUpdated: new Date(Date.now() - 2 * 60 * 60 * 1000),
     timeline: [
@@ -54,7 +54,7 @@ const initialWips: Wip[] = [
     status: "Paused",
     timeStarted: "Yesterday",
     estimate: "1h",
-    weight: 5,
+    priority: 2, // P2 - medium priority
     tags: ["frontend", "bug"],
     lastUpdated: new Date(Date.now() - 24 * 60 * 60 * 1000),
     timeline: [
@@ -71,7 +71,7 @@ const initialWips: Wip[] = [
     status: "Done",
     timeStarted: "3 days ago",
     estimate: "3h",
-    weight: 6,
+    priority: 1, // P1 - high priority
     tags: ["docs"],
     lastUpdated: new Date(Date.now() - 30 * 60 * 1000),
     timeline: [
@@ -98,30 +98,32 @@ export function useWipTracker() {
   const [wips, setWips] = useState<Wip[]>(initialWips);
   const [expandedWips, setExpandedWips] = useState<Record<number, boolean>>({});
 
-  const parseCommand = (input: string): ParsedCommand => {
+    function parseCommand(input: string): ParsedCommand {
     const tagRegex = /#(\w+)/g;
-    const timeRegex = /~(\d+[hmd])/g;
-    const weightRegex = /w(\d+)/g;
-    
-    const tags = [...input.matchAll(tagRegex)].map(match => match[1]);
-    const timeMatch = input.match(timeRegex);
-    const weightMatch = input.match(weightRegex);
-    const estimate = timeMatch ? timeMatch[0].slice(1) : null;
-    const weight = weightMatch ? parseInt(weightMatch[0].slice(1)) : 5;
-    
+    const estimateRegex = /~(\w+)/g;
+    const priorityRegex = /p(\d+)/gi;
+
+    const tags = Array.from(input.matchAll(tagRegex), m => m[1]);
+    const estimateMatch = input.match(estimateRegex);
+    const priorityMatch = input.match(priorityRegex);
+
+    const priority = priorityMatch ? parseInt(priorityMatch[0].slice(1)) : 3;
+
     const cleanTitle = input
       .replace(tagRegex, '')
-      .replace(timeRegex, '')
-      .replace(weightRegex, '')
+      .replace(estimateRegex, '')
+      .replace(priorityRegex, '')
       .trim();
-    
-    return { title: cleanTitle, tags, estimate, weight };
-  };
+
+    const estimate = estimateMatch ? estimateMatch[0].slice(1) : null;
+
+    return { title: cleanTitle, tags, estimate, priority };
+  }
 
   const addWip = (input: string) => {
     if (!input.trim()) return;
     
-    const { title, tags, estimate, weight } = parseCommand(input);
+    const { title, tags, estimate, priority } = parseCommand(input);
     
     const newWip: Wip = {
       id: Date.now(),
@@ -129,7 +131,7 @@ export function useWipTracker() {
       status: "Active",
       timeStarted: "Just now",
       estimate: estimate || undefined,
-      weight,
+      priority,
       tags,
       lastUpdated: new Date(),
       timeline: []
@@ -138,9 +140,19 @@ export function useWipTracker() {
     setWips(prev => [newWip, ...prev]);
   };
 
-  const updateWipStatus = (id: number, newStatus: Wip['status']) => {
+    const updateWipStatus = (id: number, status: Wip['status']) => {
     setWips(prev => prev.map(wip => 
-      wip.id === id ? { ...wip, status: newStatus, lastUpdated: new Date() } : wip
+      wip.id === id 
+        ? { ...wip, status, lastUpdated: new Date() }
+        : wip
+    ));
+  };
+
+  const updateWipPriority = (id: number, priority: number) => {
+    setWips(prev => prev.map(wip => 
+      wip.id === id 
+        ? { ...wip, priority: Math.max(0, Math.min(10, priority)), lastUpdated: new Date() }
+        : wip
     ));
   };
 
@@ -193,6 +205,7 @@ export function useWipTracker() {
     staleWips,
     addWip,
     updateWipStatus,
+    updateWipPriority,
     addTimelineEntry,
     toggleWipExpanded,
     parseCommand

@@ -29,7 +29,7 @@ export function CommandBar({ isOpen, onClose, onSubmit }: CommandBarProps) {
       isOpen={isOpen}
       onClose={onClose}
       title="Add New WIP"
-      description="Use #tags, ~2h for estimates, w8 for weight (1-10)"
+      description="Use #tags, ~2h for estimates, p0 for priority (0=urgent, 1=high, 2=medium, 3=low)"
     >
       <motion.div 
         className="flex items-center space-x-4 p-4 bg-gradient-to-r from-slate-50/50 to-white/50 dark:from-slate-800/50 dark:to-slate-700/50 rounded-xl border border-slate-200/50 dark:border-slate-600/50 backdrop-blur-sm"
@@ -48,7 +48,7 @@ export function CommandBar({ isOpen, onClose, onSubmit }: CommandBarProps) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Add new WIP... (try: 'Fix login bug #frontend ~2h w8')"
+          placeholder="Add new WIP... (try: 'Fix login bug #frontend ~2h p0')"
           className="flex-1 text-lg placeholder-slate-400 dark:placeholder-slate-500 outline-none bg-transparent dark:text-slate-100 font-medium"
           autoFocus
         />

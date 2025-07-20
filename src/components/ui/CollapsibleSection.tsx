@@ -14,12 +14,10 @@ export function CollapsibleSection({ isOpen, onToggle, trigger, children }: Coll
   return (
     <Collapsible.Root open={isOpen} onOpenChange={onToggle}>
       <Collapsible.Trigger asChild>
-        <button
-          className="flex items-center space-x-2 text-sm font-medium transition-all duration-200 hover:text-blue-600 dark:hover:text-blue-400"
-        >
+        <button className="flex items-center space-x-2 text-sm font-medium transition-colors duration-150 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer">
           <motion.div
             animate={{ rotate: isOpen ? 90 : 0 }}
-            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
           >
             <ChevronRight className="w-4 h-4 text-slate-500 dark:text-slate-400" />
           </motion.div>
