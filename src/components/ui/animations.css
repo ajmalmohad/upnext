@@ -1,0 +1,145 @@
+@keyframes slideDown {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-collapsible-content-height);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    height: var(--radix-collapsible-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+.animate-slideDown {
+  animation: slideDown 0.2s ease-out;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.2s ease-out;
+}
+
+/* Radix Dialog animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes zoomOut {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+}
+
+@keyframes slideInFromTop {
+  from {
+    transform: translate(-50%, -52%);
+  }
+  to {
+    transform: translate(-50%, -50%);
+  }
+}
+
+@keyframes slideOutToTop {
+  from {
+    transform: translate(-50%, -50%);
+  }
+  to {
+    transform: translate(-50%, -52%);
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    transform: translate(-52%, -50%);
+  }
+  to {
+    transform: translate(-50%, -50%);
+  }
+}
+
+@keyframes slideOutToLeft {
+  from {
+    transform: translate(-50%, -50%);
+  }
+  to {
+    transform: translate(-52%, -50%);
+  }
+}
+
+/* Animation classes */
+.animate-in {
+  animation-duration: 0.15s;
+  animation-fill-mode: forwards;
+}
+
+.animate-out {
+  animation-duration: 0.15s;
+  animation-fill-mode: forwards;
+}
+
+.fade-in-0 {
+  animation-name: fadeIn;
+}
+
+.fade-out-0 {
+  animation-name: fadeOut;
+}
+
+.zoom-in-95 {
+  animation-name: zoomIn;
+}
+
+.zoom-out-95 {
+  animation-name: zoomOut;
+}
+
+.slide-in-from-top-\[48\%\] {
+  animation-name: slideInFromTop;
+}
+
+.slide-out-to-top-\[48\%\] {
+  animation-name: slideOutToTop;
+}
+
+.slide-in-from-left-1\/2 {
+  animation-name: slideInFromLeft;
+}
+
+.slide-out-to-left-1\/2 {
+  animation-name: slideOutToLeft;
+}
