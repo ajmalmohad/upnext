@@ -21,7 +21,8 @@ export default function WIPTracker() {
     updateWipStatus,
     updateWipPriority,
     addTimelineEntry,
-    toggleWipExpanded
+    toggleWipExpanded,
+    clearAllData
   } = useWipTracker();
 
   const [activeTab, setActiveTab] = useState("incomplete");
@@ -34,22 +35,25 @@ export default function WIPTracker() {
   const headerOpacity = useTransform(scrollY, [0, 100], [1, 0.95]);
   const headerBlur = useTransform(scrollY, [0, 100], [0, 10]);
 
-  // Command bar keyboard shortcut
+    // Command bar keyboard shortcut
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         setShowCommandBar(true);
       }
-      if (e.key === 'Escape') {
-        setShowCommandBar(false);
-        setShowUpdateModal(false);
+      // Clear all data shortcut (for testing)
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'K') {
+        e.preventDefault();
+        if (confirm('Are you sure you want to clear all WIP data? This cannot be undone.')) {
+          clearAllData();
+        }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [clearAllData]);
 
   const handleAddWip = (input: string) => {
     addWip(input);
@@ -245,9 +249,9 @@ export default function WIPTracker() {
               </div>
             </motion.div>
 
-            <Tabs.Content value={activeTab} className="p-8">
+            <Tabs.Content value={activeTab} className="p-8 min-h-[60vh]">
               <motion.div 
-                className="space-y-4 max-w-4xl"
+                className={`space-y-4 max-w-4xl mx-auto ${currentWips.length === 0 ? 'flex items-center justify-center min-h-[50vh]' : ''}`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.6, staggerChildren: 0.1 }}
@@ -296,7 +300,7 @@ export default function WIPTracker() {
 
                 {currentWips.length === 0 && (
                   <motion.div 
-                    className="text-center py-20"
+                    className="text-center w-full"
                     initial={{ opacity: 0, y: 40 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
@@ -330,7 +334,9 @@ export default function WIPTracker() {
                       transition={{ delay: 0.8, duration: 0.5 }}
                     >
                       {activeTab === 'incomplete' 
-                        ? "Ready to tackle something amazing? Start by adding what you're working on and watch your progress unfold."
+                        ? wips.length === 0 
+                          ? "Welcome to WIP Tracker! Start by pressing ⌘K to add your first work-in-progress item."
+                          : "Ready to tackle something amazing? Start by adding what you're working on and watch your progress unfold."
                         : "Complete some WIPs to see your achievements here. Every finished task is a step closer to your goals!"
                       }
                     </motion.p>

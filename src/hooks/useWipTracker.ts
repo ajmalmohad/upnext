@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export interface WipTimelineEntry {
   id: number;
@@ -25,80 +25,65 @@ export interface ParsedCommand {
   priority: number;
 }
 
-const initialWips: Wip[] = [
-  {
-    id: 1,
-    title: "Build Stripe refund webhook",
-    status: "Active",
-    timeStarted: "2 hours ago",
-    estimate: "2h",
-    priority: 0, // P0 - highest priority
-    tags: ["backend", "urgent"],
-    lastUpdated: new Date(Date.now() - 2 * 60 * 60 * 1000),
-    timeline: [
-      {
-        id: 1,
-        text: "Set up endpoint structure, need to handle edge cases",
-        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000)
-      },
-      {
-        id: 2,
-        text: "Added basic error handling and validation",
-        timestamp: new Date(Date.now() - 30 * 60 * 1000)
-      }
-    ]
-  },
-  {
-    id: 2,
-    title: "Fix mobile responsive header",
-    status: "Paused",
-    timeStarted: "Yesterday",
-    estimate: "1h",
-    priority: 2, // P2 - medium priority
-    tags: ["frontend", "bug"],
-    lastUpdated: new Date(Date.now() - 24 * 60 * 60 * 1000),
-    timeline: [
-      {
-        id: 1,
-        text: "Identified the flexbox issue causing header collapse on mobile",
-        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000)
-      }
-    ]
-  },
-  {
-    id: 3,
-    title: "Write API documentation",
-    status: "Done",
-    timeStarted: "3 days ago",
-    estimate: "3h",
-    priority: 1, // P1 - high priority
-    tags: ["docs"],
-    lastUpdated: new Date(Date.now() - 30 * 60 * 1000),
-    timeline: [
-      {
-        id: 1,
-        text: "Completed auth section, working on endpoints",
-        timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
-      },
-      {
-        id: 2,
-        text: "Added examples for all endpoints",
-        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000)
-      },
-      {
-        id: 3,
-        text: "Final review and publishing to team",
-        timestamp: new Date(Date.now() - 30 * 60 * 1000)
-      }
-    ]
+// Storage utilities
+const STORAGE_KEY = 'wip-tracker-data';
+
+const saveToStorage = (data: any) => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (error) {
+    console.error('Failed to save to localStorage:', error);
   }
-];
+};
+
+const loadFromStorage = (): Wip[] => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) return [];
+    
+    const parsed = JSON.parse(stored);
+    // Convert date strings back to Date objects
+    return parsed.map((wip: any) => ({
+      ...wip,
+      lastUpdated: new Date(wip.lastUpdated),
+      timeline: wip.timeline.map((entry: any) => ({
+        ...entry,
+        timestamp: new Date(entry.timestamp)
+      }))
+    }));
+  } catch (error) {
+    console.error('Failed to load from localStorage:', error);
+    return [];
+  }
+};
+
+// Start with empty state - no initial WIPs
+const getInitialWips = (): Wip[] => {
+  const stored = loadFromStorage();
+  return stored;
+};
 
 export function useWipTracker() {
-  const [wips, setWips] = useState<Wip[]>(initialWips);
+  const [wips, setWips] = useState<Wip[]>(getInitialWips);
   const [expandedWips, setExpandedWips] = useState<Record<number, boolean>>({});
+  const [nextId, setNextId] = useState(() => {
+    const stored = loadFromStorage();
+    if (stored.length === 0) return 1;
+    
+    // Find the highest ID from both WIPs and timeline entries
+    const wipIds = stored.map(w => w.id);
+    const timelineIds = stored.flatMap(w => w.timeline.map(t => t.id));
+    const allIds = [...wipIds, ...timelineIds];
+    
+    return Math.max(...allIds) + 1;
+  });
 
-    function parseCommand(input: string): ParsedCommand {
+  // Save to localStorage whenever wips change
+  useEffect(() => {
+    saveToStorage(wips);
+  }, [wips]);
+
+  function parseCommand(input: string): ParsedCommand {
     const tagRegex = /#(\w+)/g;
     const estimateRegex = /~(\w+)/g;
     const priorityRegex = /p(\d+)/gi;
@@ -126,7 +111,7 @@ export function useWipTracker() {
     const { title, tags, estimate, priority } = parseCommand(input);
     
     const newWip: Wip = {
-      id: Date.now(),
+      id: nextId,
       title,
       status: "Active",
       timeStarted: "Just now",
@@ -138,6 +123,7 @@ export function useWipTracker() {
     };
 
     setWips(prev => [newWip, ...prev]);
+    setNextId(prev => prev + 1);
   };
 
     const updateWipStatus = (id: number, status: Wip['status']) => {
@@ -156,11 +142,18 @@ export function useWipTracker() {
     ));
   };
 
+  const clearAllData = () => {
+    setWips([]);
+    setExpandedWips({});
+    setNextId(1);
+    localStorage.removeItem(STORAGE_KEY);
+  };
+
   const addTimelineEntry = (wipId: number, text: string) => {
     if (!text.trim()) return;
 
     const newTimelineEntry: WipTimelineEntry = {
-      id: Date.now(),
+      id: nextId,
       text: text.trim(),
       timestamp: new Date()
     };
@@ -174,6 +167,8 @@ export function useWipTracker() {
           }
         : wip
     ));
+    
+    setNextId(prev => prev + 1);
   };
 
   const toggleWipExpanded = (id: number) => {
@@ -208,6 +203,7 @@ export function useWipTracker() {
     updateWipPriority,
     addTimelineEntry,
     toggleWipExpanded,
+    clearAllData,
     parseCommand
   };
 }
