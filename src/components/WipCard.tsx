@@ -127,41 +127,29 @@ export function WipCard({
                     </div>
                   }
                 >
-                  <AnimatePresence>
-                    <motion.div 
-                      className="mt-4 p-5 bg-gradient-to-br from-slate-50/80 to-slate-100/50 dark:from-slate-800/80 dark:to-slate-900/50 rounded-xl backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50"
-                      initial={{ opacity: 0, height: 0, y: -20 }}
-                      animate={{ opacity: 1, height: 'auto', y: 0 }}
-                      exit={{ opacity: 0, height: 0, y: -20 }}
-                      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                    >
-                      <div className="space-y-4">
-                        {wip.timeline.map((update, index) => (
-                          <motion.div 
-                            key={update.id} 
-                            className="flex space-x-4"
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: index * 0.1, duration: 0.3 }}
-                          >
-                            <div className="flex-shrink-0 flex flex-col items-center">
-                              <motion.div 
-                                className="w-3 h-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full shadow-md"
-                                whileHover={{ scale: 1.2 }}
-                              />
-                              {index < wip.timeline.length - 1 && (
-                                <div className="w-0.5 h-8 bg-gradient-to-b from-blue-300 to-slate-300 dark:to-slate-600 mt-2"></div>
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm text-slate-900 dark:text-slate-100 mb-2 font-medium leading-relaxed">{update.text}</p>
-                              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{formatTimeAgo(update.timestamp)}</p>
-                            </div>
-                          </motion.div>
-                        ))}
-                      </div>
-                    </motion.div>
-                  </AnimatePresence>
+                  <div 
+                    className="mt-4 p-5 bg-gradient-to-br from-slate-50/80 to-slate-100/50 dark:from-slate-800/80 dark:to-slate-900/50 rounded-xl backdrop-blur-sm border border-slate-200/50 dark:border-slate-700/50"
+                  >
+                    <div className="space-y-4">
+                      {wip.timeline.map((update, index) => (
+                        <div 
+                          key={update.id} 
+                          className="flex space-x-4"
+                        >
+                          <div className="flex-shrink-0 flex flex-col items-center">
+                            <div className="w-3 h-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full shadow-md" />
+                            {index < wip.timeline.length - 1 && (
+                              <div className="w-0.5 h-8 bg-gradient-to-b from-blue-300 to-slate-300 dark:to-slate-600 mt-2"></div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm text-slate-900 dark:text-slate-100 mb-2 font-medium leading-relaxed">{update.text}</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{formatTimeAgo(update.timestamp)}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </CollapsibleSection>
               </motion.div>
             )}
